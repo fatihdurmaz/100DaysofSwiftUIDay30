@@ -11,6 +11,7 @@
 		DE324B32297F22B900469952 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE324B31297F22B900469952 /* ContentView.swift */; };
 		DE324B34297F22BA00469952 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE324B33297F22BA00469952 /* Assets.xcassets */; };
 		DE324B37297F22BA00469952 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE324B36297F22BA00469952 /* Preview Assets.xcassets */; };
+		DE324B40297F323300469952 /* start.txt in Resources */ = {isa = PBXBuildFile; fileRef = DE324B3F297F323300469952 /* start.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		DE324B31297F22B900469952 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DE324B33297F22BA00469952 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE324B36297F22BA00469952 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DE324B3F297F323300469952 /* start.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = start.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +53,7 @@
 		DE324B2E297F22B900469952 /* SwiftUIDay30 */ = {
 			isa = PBXGroup;
 			children = (
+				DE324B3F297F323300469952 /* start.txt */,
 				DE324B2F297F22B900469952 /* SwiftUIDay30App.swift */,
 				DE324B31297F22B900469952 /* ContentView.swift */,
 				DE324B33297F22BA00469952 /* Assets.xcassets */,
@@ -125,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE324B40297F323300469952 /* start.txt in Resources */,
 				DE324B37297F22BA00469952 /* Preview Assets.xcassets in Resources */,
 				DE324B34297F22BA00469952 /* Assets.xcassets in Resources */,
 			);
