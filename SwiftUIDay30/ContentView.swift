@@ -11,8 +11,12 @@ struct ContentView: View {
     @State var kelimeler = [String]()
     @State var kokKelime = ""
     @State var girilenKelime = ""
+    @State private var errorTitle = ""
+    @State private var errorMessage = ""
+    @State private var showingError = false
+    
     var body: some View {
-        NavigationStack{
+        NavigationView{
             List{
                 Section {
                     TextField("kelime giriniz", text: $girilenKelime)
@@ -31,7 +35,18 @@ struct ContentView: View {
             .navigationTitle(kokKelime)
             .onSubmit(kelimeEkle)
             .onAppear(perform: startGame)
+            .alert(errorTitle, isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
+            }
+            .toolbar {
+                Button("Değiştir") {
+                    startGame()
+                }
+            }
         }
+
     }
     
     func kelimeEkle() {
@@ -40,6 +55,22 @@ struct ContentView: View {
             return // boş geçilmesini engelliyoruz
             // guard geriye boş return döndürmek zorundadır.
         }
+        
+        guard isOriginal(word: eklenecekKelime) else {
+            wordError(title: "Kelime zaten kullanılıyor", message: "Daha önce bu kelimeyi kullandınız.")
+            return
+        }
+        
+        guard isPossible(word: eklenecekKelime) else {
+            wordError(title: "Kelime mümkün değil", message: "Bu kelimeyi heceleyemezsin -> '\(kokKelime)'!")
+            return
+        }
+        
+        guard isReal(word: eklenecekKelime) else {
+            wordError(title: "Kelime tanınmadı", message: "Lütfen geçerli bir kelime giriniz!")
+            return
+        }
+        
         withAnimation {
             kelimeler.insert(eklenecekKelime, at: 0)
             // append() kullanmadık çünkü dizinin souna ekler yeni elemanı. insert ile hangi sıraya (indise) ekleneceğini belirtebiliriz.
@@ -48,23 +79,54 @@ struct ContentView: View {
     }
     
     func startGame() {
-        // 1. Find the URL for start.txt in our app bundle
+        // 1. start.txt dosyasını tanımlıyoruz.
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
-            // 2. Load start.txt into a string
+            // 2. dosya içeriğini string olacak şekilde bir değişkene atıyoruz.
             if let startWords = try? String(contentsOf: startWordsURL) {
-                // 3. Split the string up into an array of strings, splitting on line breaks
+                // 3. değişkene attığımız içeriğin her bir satırındaki değeri, \n (alt satıra geçme) karakterine göre dizi değişkenine atıyoruz.
                 let allWords = startWords.components(separatedBy: "\n")
                 
-                // 4. Pick one random word, or use "silkworm" as a sensible default
+                // 4. dizi içerisinden rastgele bir değer seçip kokKelime değişkenine atıyoruz.
                 kokKelime = allWords.randomElement() ?? "elektrik"
                 
-                // If we are here everything has worked, so we can exit
                 return
             }
         }
         
-        // If were are *here* then there was a problem – trigger a crash and report the error
+        // yukarıdaki işlemlerden herhangi birinde hata almışsak geriye hata mesajı gönderiyoruz.
+        // fatalError() : İşlemi durdurup hata mesajı fırlatma hazır fonksiyonudur.
         fatalError("Could not load start.txt from bundle.")
+    }
+    
+    func isOriginal(word: String) -> Bool {
+        !kelimeler.contains(word)
+    }
+    func isPossible(word: String) -> Bool {
+        var tempWord = kokKelime
+        
+        for letter in word {
+            if let pos = tempWord.firstIndex(of: letter) {
+                tempWord.remove(at: pos)
+            } else {
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    func isReal(word: String) -> Bool {
+        let checker = UITextChecker()
+        let range = NSRange(location: 0, length: word.utf16.count)
+        let misspelledRange = checker.rangeOfMisspelledWord(in: word, range: range, startingAt: 0, wrap: false, language: "tr")
+        
+        return misspelledRange.location == NSNotFound
+    }
+    
+    func wordError(title: String, message: String) {
+        errorTitle = title
+        errorMessage = message
+        showingError = true
     }
 }
 
