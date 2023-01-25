@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct ContentView: View {
     @State var kelimeler = [String]()
     @State var kokKelime = ""
     @State var girilenKelime = ""
-    @State private var errorTitle = ""
-    @State private var errorMessage = ""
-    @State private var showingError = false
+    @State private var hataBaslik = ""
+    @State private var hataMesaj = ""
+    @State private var hataGoster = false
     
     var body: some View {
         NavigationView{
@@ -34,51 +35,51 @@ struct ContentView: View {
             }
             .navigationTitle(kokKelime)
             .onSubmit(kelimeEkle)
-            .onAppear(perform: startGame)
-            .alert(errorTitle, isPresented: $showingError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage)
+            .onAppear(perform: oyunuBaslat)
+            .toast(isPresenting: $hataGoster){
+                AlertToast(type: .error(.red), title: hataBaslik, subTitle: hataMesaj)
             }
             .toolbar {
-                Button("Değiştir") {
-                    startGame()
+                ToolbarItem (placement: .navigationBarTrailing) {
+                    Button("Yeni Kelime") {
+                        restart()
+                    }
                 }
             }
         }
-
+        
     }
     
     func kelimeEkle() {
-        let eklenecekKelime = girilenKelime.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        guard eklenecekKelime.count > 0 else {
+        let kelime = girilenKelime.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard kelime.count > 1 else {
             return // boş geçilmesini engelliyoruz
             // guard geriye boş return döndürmek zorundadır.
         }
         
-        guard isOriginal(word: eklenecekKelime) else {
-            wordError(title: "Kelime zaten kullanılıyor", message: "Daha önce bu kelimeyi kullandınız.")
+        guard isOriginal(word: kelime) else {
+            wordError(baslik: "Aynı Kelime", mesaj: "Daha önce bu kelimeyi kullandınız.")
             return
         }
         
-        guard isPossible(word: eklenecekKelime) else {
-            wordError(title: "Kelime mümkün değil", message: "Bu kelimeyi heceleyemezsin -> '\(kokKelime)'!")
+        guard isPossible(word: kelime) else {
+            wordError(baslik: "Olmayan Harf", mesaj: "Kelimede olmayan harfleri kullandınız.")
             return
         }
         
-        guard isReal(word: eklenecekKelime) else {
-            wordError(title: "Kelime tanınmadı", message: "Lütfen geçerli bir kelime giriniz!")
+        guard isReal(word: kelime) else {
+            wordError(baslik: "Geçersiz Kelime", mesaj: "Geçerli bir kelime girmediniz.")
             return
         }
         
         withAnimation {
-            kelimeler.insert(eklenecekKelime, at: 0)
+            kelimeler.insert(kelime, at: 0)
             // append() kullanmadık çünkü dizinin souna ekler yeni elemanı. insert ile hangi sıraya (indise) ekleneceğini belirtebiliriz.
         }
         girilenKelime = ""
     }
     
-    func startGame() {
+    func oyunuBaslat() {
         // 1. start.txt dosyasını tanımlıyoruz.
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             // 2. dosya içeriğini string olacak şekilde bir değişkene atıyoruz.
@@ -87,7 +88,7 @@ struct ContentView: View {
                 let allWords = startWords.components(separatedBy: "\n")
                 
                 // 4. dizi içerisinden rastgele bir değer seçip kokKelime değişkenine atıyoruz.
-                kokKelime = allWords.randomElement() ?? "elektrik"
+                kokKelime = allWords.randomElement()?.lowercased() ?? "elektrik"
                 
                 return
             }
@@ -123,10 +124,15 @@ struct ContentView: View {
         return misspelledRange.location == NSNotFound
     }
     
-    func wordError(title: String, message: String) {
-        errorTitle = title
-        errorMessage = message
-        showingError = true
+    func wordError(baslik: String, mesaj: String ) {
+        hataBaslik = baslik
+        hataMesaj = mesaj
+        hataGoster = true
+    }
+    
+    func restart() {
+        kelimeler.removeAll()
+        oyunuBaslat()
     }
 }
 
