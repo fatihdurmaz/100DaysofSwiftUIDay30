@@ -8,23 +8,27 @@
 import SwiftUI
 import AlertToast
 
+
 struct ContentView: View {
     @State var kelimeler = [String]()
     @State var kokKelime = ""
+    @State var puan = 0
     @State var girilenKelime = ""
     @State private var hataBaslik = ""
     @State private var hataMesaj = ""
     @State private var hataGoster = false
-    
+
     var body: some View {
         NavigationView{
             List{
                 Section {
                     TextField("kelime giriniz", text: $girilenKelime)
                         .textInputAutocapitalization(.never)
+                }footer: {
+                    Text("yukarıdaki sözcüğün harflerini kullanarak yeni kelimeler türetiniz.")
                 }
                 
-                Section ("Kelimeler") {
+                Section ("Türettiğiniz Kelimeler") {
                     ForEach(kelimeler, id:\.self){ kelime in
                         HStack {
                             Image(systemName: "\(kelime.count).circle")
@@ -41,10 +45,18 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem (placement: .navigationBarTrailing) {
-                    Button("Yeni Kelime") {
-                        restart()
+                    Button(action: restart) {
+                        Text("Yeni Kelime")
                     }
                 }
+            }
+            .safeAreaInset(edge: .bottom) {
+                Text("Puan: \(puan)")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.blue)
+                    .foregroundColor(.white)
+                    .font(.title)
             }
         }
         
@@ -77,6 +89,7 @@ struct ContentView: View {
             // append() kullanmadık çünkü dizinin souna ekler yeni elemanı. insert ile hangi sıraya (indise) ekleneceğini belirtebiliriz.
         }
         girilenKelime = ""
+        puan +=  kelime.count
     }
     
     func oyunuBaslat() {
@@ -128,11 +141,17 @@ struct ContentView: View {
         hataBaslik = baslik
         hataMesaj = mesaj
         hataGoster = true
+
     }
     
     func restart() {
-        kelimeler.removeAll()
+        withAnimation {
+            kelimeler.removeAll()
+            puan = 0
+        }
         oyunuBaslat()
+
+        
     }
 }
 
